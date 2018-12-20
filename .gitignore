@@ -1,0 +1,87 @@
+# Byte-compiled / optimized / DLL files
+.idea/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Twitter credentials
+creds/
+consumer_api_key.txt
+consumer_api_secret_key.txt
+access_token.txt
+access_token_secret.txt
+
+# Tweets
+data_dump.json
+test_data.json
+tweets.json
+question_seeker/data_dump.json
+question_seeker/test_data.json
+question_seeker/tweets.json
+
+# Early attempt
+question_seeker/listener.py
+
+# Logs
+qs.log
