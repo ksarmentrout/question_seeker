@@ -51,13 +51,9 @@ capacity_starts = [
 
 imperative_starts = [
     'why can',
-    'why do',
-    "why don't",
     'why must',
     'why should',
     'y can',
-    'y do',
-    "y don't",
     'y must',
     'y should',
     'how should',
