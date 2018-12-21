@@ -70,7 +70,7 @@ class Listener(StreamListener):
             status: API error code
         """
         self.file.close()
-        logger.info(f'Twitter API connection failed with status code {status}. Reconnecting.')
+        logger.error(f'Twitter API connection failed with status code {status}. Reconnecting.')
         utils.send_sms(f'Twitter API connection failed with status code {status}. Reconnecting.')
         raise ConnectionError(status)
 

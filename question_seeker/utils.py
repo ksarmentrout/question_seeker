@@ -7,7 +7,7 @@ import tweepy
 from typing import List, Union
 
 
-logging.basicConfig(filename='qs.log', level=logging.DEBUG, format='%(asctime)s [%(levelname)s] %(name)s: %(message)s')
+logging.basicConfig(filename='qs.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] %(name)s: %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -25,7 +25,7 @@ def send_sms(msg: str) -> int:
     logger.info(f'Sending SMS with body "{msg}"')
     resp = requests.post(url, data=data)
     if not resp.ok:
-        logger.debug(f'Sending SMS failed with status code {resp.status_code}')
+        logger.error(f'Sending SMS failed with status code {resp.status_code}')
     return resp.status_code
 
 
@@ -60,13 +60,13 @@ def parse(s: str, tracking: List[str]) -> Union[bool, None]:
     match = r.search(s)
     logger.debug(f'String to parse: {s}')
     if match:
-        logger.debug('{}'.format(match.groups()))
+        logger.debug(f'Match groups: {match.groups()}')
     else:
         logger.debug('No match')
 
     if match:
         q_lead = match.groups()[0].rstrip()
-        logger.info(q_lead)
+        logger.debug(f'Question lead: {q_lead}')
         if q_lead.lower() in tracking:
             return True
     return None
