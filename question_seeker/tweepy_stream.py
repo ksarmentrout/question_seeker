@@ -31,7 +31,8 @@ class Listener(StreamListener):
         parsed_tweets = utils.parse_tweets(self.tweet_list, self.tracking)
         if self.write_to_file:
             if parsed_tweets:
-                self.file.writelines(parsed_tweets)
+                for tweet in parsed_tweets:
+                    self.file.write(tweet + '\n')
                 logger.debug(f'Wrote {len(parsed_tweets)} tweets to file')
         self.tweet_list = []
 
