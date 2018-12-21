@@ -34,9 +34,9 @@ class TestStreamer(unittest.TestCase):
         assert utils.parse(self.pass1, self.tracking_list) is True
         assert utils.parse(self.pass2, self.tracking_list) is True
         assert utils.parse(self.pass3, self.tracking_list) is True
-        assert utils.parse(self.fail1, self.tracking_list) is None
-        assert utils.parse(self.fail2, self.tracking_list) is None
-        assert utils.parse(self.fail3, self.tracking_list) is None
+        assert utils.parse(self.fail1, self.tracking_list) is False
+        assert utils.parse(self.fail2, self.tracking_list) is False
+        assert utils.parse(self.fail3, self.tracking_list) is False
 
     def test_batch_parser(self):
         tweet_list = [self.pass1, self.pass2, self.fail1, self.fail2]

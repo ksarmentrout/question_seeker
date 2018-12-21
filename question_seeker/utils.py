@@ -41,7 +41,7 @@ def get_auth() -> tweepy.OAuthHandler:
     return auth
 
 
-def parse(s: str, tracking: List[str]) -> Union[bool, None]:
+def parse(s: str, tracking: List[str]) -> bool:
     """Checks if a string is asking a question that is being tracked.
     Assumptions:
         - Looks throughout the entire tweet, not just the beginning.
@@ -53,8 +53,14 @@ def parse(s: str, tracking: List[str]) -> Union[bool, None]:
         tracking: List of question starts to check for (from q_starts.py)
 
     Returns:
-        True if match is successful and question should be kept, None otherwise
+        True if match is successful and question should be kept, False otherwise
     """
+    # Ignore retweets (start with "RT")
+    # Only looking for original queries, not echoing other ideas, even if it indicates agreement.
+    # Cuts down on redundancy of saved tweets.
+    if s[:3] == 'RT ':
+        return False
+
     pattern = r"(\b(why|y|who|what|where|how)\b \b(am|are|can|did|do|don't|is|must|should)\b).+\?"
     r = re.compile(pattern, flags=re.IGNORECASE)
     match = r.search(s)
@@ -69,10 +75,8 @@ def parse(s: str, tracking: List[str]) -> Union[bool, None]:
         logger.debug(f'Question lead: {q_lead}')
         if q_lead.lower() in tracking:
             return True
-    return None
+    return False
 
 
-def parse_tweets(tweets: List[dict], tracking: List[str]):
-    return [json.dumps(x) for x in tweets if parse(x.get('text', ''), tracking) is not None]
-
-
+def parse_tweets(tweets: List[dict], tracking: List[str]) -> List[str]:
+    return [json.dumps(x) for x in tweets if parse(x.get('text', ''), tracking)]
