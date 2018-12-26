@@ -11,6 +11,10 @@ logging.basicConfig(filename='qs.log', level=logging.INFO, format='%(asctime)s [
 logger = logging.getLogger(__name__)
 
 
+PATTERN = r"(\b(why|y|who|what|where|how)\b \b(am|are|can|did|do|don't|is|must|should)\b).+\?"
+R = re.compile(PATTERN, flags=re.IGNORECASE)
+
+
 def send_sms(msg: str) -> int:
     """Sends an SMS notification via IFTTT webhook integration.
 
@@ -61,9 +65,7 @@ def parse(s: str, tracking: List[str]) -> bool:
     if s[:3] == 'RT ':
         return False
 
-    pattern = r"(\b(why|y|who|what|where|how)\b \b(am|are|can|did|do|don't|is|must|should)\b).+\?"
-    r = re.compile(pattern, flags=re.IGNORECASE)
-    match = r.search(s)
+    match = R.search(s)
     logger.debug(f'String to parse: {s}')
     if match:
         logger.debug(f'Match groups: {match.groups()}')
