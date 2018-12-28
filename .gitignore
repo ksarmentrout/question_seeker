@@ -75,10 +75,10 @@ access_token_secret.txt
 # Tweets
 data_dump.json
 test_data.json
-tweets.json
+*_tweets.json
 question_seeker/data_dump.json
 question_seeker/test_data.json
-question_seeker/tweets.json
+question_seeker/*_tweets.json
 
 # Early attempt
 question_seeker/listener.py
