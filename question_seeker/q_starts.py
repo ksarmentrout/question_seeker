@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 
 all_starts = [
@@ -50,10 +50,8 @@ capacity_starts = [
 ]
 
 imperative_starts = [
-    'why can',
     'why must',
     'why should',
-    'y can',
     'y must',
     'y should',
     'how should',
@@ -75,5 +73,17 @@ def get_q_list(q_list_name: str) -> List[str]:
         'capacity': capacity_starts,
         'imperative': imperative_starts,
         'test': test_start
+    }
+    return lookup[q_list_name]
+
+
+def get_q_list_and_filename(q_list_name: str) -> Tuple[List[str], str]:
+    lookup = {
+        'all': (all_starts, 'all_tweets.json'),
+        'factual': (factual_starts, 'factual_tweets.json'),
+        'personal': (personal_starts, 'personal_tweets.json'),
+        'capacity': (capacity_starts, 'capacity_tweets.json'),
+        'imperative': (imperative_starts, 'imperative_tweets.json'),
+        'test': (test_start, 'tweets.json')
     }
     return lookup[q_list_name]
