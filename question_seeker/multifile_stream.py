@@ -125,6 +125,7 @@ def stream(
     logger = log.set_log_config(logger_filename, logger_level)
 
     # Get the tweet handling objects
+    q_list_names = [q_list_names] if not isinstance(q_list_names, list) else q_list_names
     tweet_handler_map = utils.get_tweet_handler_map(q_list_names, batch_size, write_to_file)
 
     # Connect to a stream using exponential backoff in the event of a connection error

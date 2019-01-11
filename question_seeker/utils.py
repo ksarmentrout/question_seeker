@@ -10,7 +10,7 @@ from question_seeker.log import LOGGER as logger
 from question_seeker import q_starts
 
 
-PATTERN = r"(\b(why|y|who|what|where|how)\b \b(am|are|can|did|do|don't|is|must|should)\b).+\?"
+PATTERN = r"(\b(why|y|who|what|where|how)\b \b(am|are|can|did|do|don't|is|must|should)\b) .+\?"
 R = re.compile(PATTERN, flags=re.IGNORECASE)
 
 
@@ -70,7 +70,7 @@ class FileWrapper:
         self.file.close()
         self.isopen = False
 
-    def write(self, line):
+    def write(self, line: str):
         self.file.write(line + '\n')
 
 
@@ -83,7 +83,7 @@ class TweetHandler:
         self.write_to_file = write_to_file
         self.bucket = []
 
-    def add_tweet(self, tweet):
+    def add_tweet(self, tweet: str):
         self.bucket.append(tweet)
         if len(self.bucket) == self.batch_size:
             if self.write_to_file:
@@ -95,14 +95,18 @@ class TweetHandler:
             self.file.write(tweet)
         logger.debug(f'Wrote {len(self.bucket)} tweets to file')
 
+    def __repr__(self):
+        return f'TweetHandler with filename "{self.filename}" holding {len(self.bucket)} tweets'
+
 
 def get_tweet_handler_map(q_list_names: Union[List[str], str], batch_size: int, write_to_file: bool) -> Dict[str, TweetHandler]:
-    """
+    """Creates a dictionary from question start to TweetHandler object for each question start matching the
+    list of question titles passed in.
 
     Args:
-        q_list_names:
-        batch_size:
-        write_to_file:
+        q_list_names: list of strings to fetch question starts from q_starts
+        batch_size: int, number of tweets to hold onto before writing to a file
+        write_to_file: bool, whether to actually write to a file
 
     Returns:
 
@@ -134,8 +138,8 @@ def process(tweet: dict, tweet_handler_map: Dict[str, TweetHandler]):
     # Ignore retweets
     # Only looking for original queries, not echoing other ideas, even if it indicates agreement.
     # Cuts down on redundancy of saved tweets.
-    logger.info(tweet['retweeted'])
-    if tweet['retweeted']:
+    # Setting default to True or else the rate-limited tweets (that don't have a 'retweeted' field) would go through
+    if tweet.get('retweeted', True):
         return
 
     tweet_text = tweet.get('text', '')
@@ -150,12 +154,12 @@ def process(tweet: dict, tweet_handler_map: Dict[str, TweetHandler]):
         q_lead = match.groups()[0].rstrip()
         logger.debug(f'Question lead: {q_lead}')
         if q_lead.lower() in tweet_handler_map:
-            tweet_handler_map[q_lead].add_tweet(json.dumps(tweet))
+            tweet_handler_map[q_lead.lower()].add_tweet(json.dumps(tweet))
 
 
-def process_tweets(tweet_list: List[dict], tweet_handler_map):
-    """Filters a batch of collected tweets for the presence of one of the tracked questions, then writes to file.
-    Resets the retained tweet list to start a new batch.
+def process_tweets(tweet_list: List[dict], tweet_handler_map: Dict[str, TweetHandler]):
+    """Filters a batch of collected tweets for the presence of one of the tracked questions, adding relevant tweets
+    to the appropriate TweetHandler object via the add_tweet() method.
     """
     for tweet in tweet_list:
         process(tweet, tweet_handler_map)
