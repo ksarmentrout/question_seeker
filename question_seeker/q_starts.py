@@ -26,28 +26,30 @@ all_starts = [
     'where should',
 ]
 
-factual_starts = [
-    'why are',
-    'why do',
-    "why don't",
-    'why is',
-    'why did',
-    'y are',
-    'y do',
-    "y don't",
-    'y is',
-    'y did',
-]
-
-personal_starts = [
-    'why am',
-    'y am'
-]
 
 capacity_starts = [
     'why can',
     'y can',
 ]
+
+
+categorizing_starts = [
+    'why is',
+    'y is'
+]
+
+
+factual_starts = [
+    'why are',
+    'why do',
+    "why don't",
+    'why did',
+    'y are',
+    'y do',
+    "y don't",
+    'y did',
+]
+
 
 imperative_starts = [
     'why must',
@@ -60,6 +62,13 @@ imperative_starts = [
     'where should'
 ]
 
+
+personal_starts = [
+    'why am',
+    'y am'
+]
+
+
 test_start = [
     'cat'
 ]
@@ -68,10 +77,11 @@ test_start = [
 def get_q_list(q_list_name: str) -> List[str]:
     lookup = {
         'all': all_starts,
-        'factual': factual_starts,
-        'personal': personal_starts,
         'capacity': capacity_starts,
+        'categorizing': categorizing_starts,
+        'factual': factual_starts,
         'imperative': imperative_starts,
+        'personal': personal_starts,
         'test': test_start
     }
     return lookup[q_list_name]
@@ -80,10 +90,11 @@ def get_q_list(q_list_name: str) -> List[str]:
 def get_q_list_and_filename(q_list_name: str) -> Tuple[List[str], str]:
     lookup = {
         'all': (all_starts, 'all_tweets.json'),
-        'factual': (factual_starts, 'factual_tweets.json'),
-        'personal': (personal_starts, 'personal_tweets.json'),
         'capacity': (capacity_starts, 'capacity_tweets.json'),
+        'categorizing': (categorizing_starts, 'categorizing_tweets.json'),
+        'factual': (factual_starts, 'factual_tweets.json'),
         'imperative': (imperative_starts, 'imperative_tweets.json'),
+        'personal': (personal_starts, 'personal_tweets.json'),
         'test': (test_start, 'tweets.json')
     }
     return lookup[q_list_name]
