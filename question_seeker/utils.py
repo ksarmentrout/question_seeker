@@ -110,7 +110,7 @@ def get_tweet_handler_map(q_list_names: Union[List[str], str], batch_size: int, 
         write_to_file: bool, whether to actually write to a file
 
     Returns:
-
+        Dictionary mapping of question starts to TweetHandler objects
     """
     handler_map = {}
     for name in q_list_names:
@@ -134,7 +134,7 @@ def process(tweet: dict, tweet_handler_map: Dict[str, TweetHandler]):
 
     Args:
         tweet: tweet to match against
-        tweet_handler_map: List of question starts to check for (from q_starts.py)
+        tweet_handler_map: mapping of question starts to TweetHandler objects
     """
     # Ignore retweets
     # Only looking for original queries, not echoing other ideas, even if it indicates agreement.
@@ -169,9 +169,18 @@ def process(tweet: dict, tweet_handler_map: Dict[str, TweetHandler]):
             logger.debug(f'Added tweet to handler {tweet_handler_map[q_lead.lower()]}')
 
 
-def process_tweets(tweet_list: List[dict], tweet_handler_map: Dict[str, TweetHandler]):
+def process_tweets(tweet_list: List[dict], tweet_handler_map: Dict[str, TweetHandler], force_write: bool=False):
     """Filters a batch of collected tweets for the presence of one of the tracked questions, adding relevant tweets
     to the appropriate TweetHandler object via the add_tweet() method.
+
+    Args:
+        tweet_list: list of tweet objects as dictionaries
+        tweet_handler_map: mapping of question starts to TweetHandler objects
+        force_write: bool, whether to force all tweet handlers to write their held tweets to file
     """
     for tweet in tweet_list:
         process(tweet, tweet_handler_map)
+
+    if force_write:
+        for tweet_handler in tweet_handler_map.values():
+            tweet_handler.write_tweets()

@@ -54,6 +54,7 @@ class Listener(StreamListener):
             else:
                 print('Stopping tweet collection')
                 logger.info('Stopping tweet collection')
+                utils.process_tweets(self.tweet_list, self.tweet_handler_map, force_write=True)
                 return False
         else:
             # Process data infinitely
@@ -72,7 +73,7 @@ class Listener(StreamListener):
         """
         # Write all held tweets to files before closing
         self.total_tweet_counter += len(self.tweet_list)
-        utils.process_tweets(self.tweet_list, self.tweet_handler_map)
+        utils.process_tweets(self.tweet_list, self.tweet_handler_map, force_write=True)
 
         # Close files
         for tweet_handler in self.tweet_handler_map.values():
