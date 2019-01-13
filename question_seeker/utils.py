@@ -10,7 +10,7 @@ from question_seeker.log import LOGGER as logger
 from question_seeker import q_starts
 
 
-PATTERN = r"(\b(why|y|who|what|where|how)\b \b(am|are|can|did|do|don't|is|must|should)\b) .+\?"
+PATTERN = r"(\b(why|y|who|what|where|how)\b \b(am|are|can|can't|did|do|don't|is|must|should)\b) .+\?"
 R = re.compile(PATTERN, flags=re.IGNORECASE)
 
 
@@ -138,13 +138,22 @@ def process(tweet: dict, tweet_handler_map: Dict[str, TweetHandler]):
     # Ignore retweets
     # Only looking for original queries, not echoing other ideas, even if it indicates agreement.
     # Cuts down on redundancy of saved tweets.
-    # Setting default to True or else the rate-limited tweets (that don't have a 'retweeted' field) would go through
-    if tweet.get('retweeted', True):
+    if tweet.get('retweeted_status'):
         return
 
-    tweet_text = tweet.get('text', '')
+    # Account for extended tweet field
+    if tweet.get('extended_tweet'):
+        tweet_text = tweet.get('extended_tweet', {}).get('full_text', '')
+    else:
+        tweet_text = tweet.get('text', '')
+
+    # Remove newlines
+    if '\n' in tweet_text:
+        tweet_text = tweet_text.replace('\n', ' ')
+
     match = R.search(tweet_text)
     logger.debug(f'String to parse: {tweet_text}')
+
     if match:
         logger.debug(f'Match groups: {match.groups()}')
     else:
@@ -153,8 +162,10 @@ def process(tweet: dict, tweet_handler_map: Dict[str, TweetHandler]):
     if match:
         q_lead = match.groups()[0].rstrip()
         logger.debug(f'Question lead: {q_lead}')
+        logger.debug(f'Tweet handler map keys: {tweet_handler_map.keys()}')
         if q_lead.lower() in tweet_handler_map:
             tweet_handler_map[q_lead.lower()].add_tweet(json.dumps(tweet))
+            logger.debug(f'Added tweet to handler {tweet_handler_map[q_lead.lower()]}')
 
 
 def process_tweets(tweet_list: List[dict], tweet_handler_map: Dict[str, TweetHandler]):
