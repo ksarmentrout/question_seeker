@@ -4,7 +4,7 @@ import os
 import re
 import requests
 import tweepy
-from typing import Dict, List, Union
+from typing import Dict, List, TextIO, Union
 
 from question_seeker.log import LOGGER as logger
 from question_seeker import q_starts
@@ -57,7 +57,7 @@ class FileWrapper:
         self.file = open(self.filename, self.mode)
         self.isopen = True
 
-    def open(self):
+    def open(self) -> TextIO:
         if self.isopen:
             return self.file
         self.file = open(self.filename, self.mode)
@@ -99,7 +99,8 @@ class TweetHandler:
         return f'TweetHandler with filename "{self.filename}" holding {len(self.bucket)} tweets'
 
 
-def get_tweet_handler_map(q_list_names: Union[List[str], str], batch_size: int, write_to_file: bool) -> Dict[str, TweetHandler]:
+def get_tweet_handler_map(q_list_names: Union[List[str], str], batch_size: int, write_to_file: bool)\
+        -> Dict[str, TweetHandler]:
     """Creates a dictionary from question start to TweetHandler object for each question start matching the
     list of question titles passed in.
 

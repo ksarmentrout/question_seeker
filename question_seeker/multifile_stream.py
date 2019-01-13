@@ -64,7 +64,7 @@ class Listener(StreamListener):
         report_line = f'{self.total_tweet_counter},{datetime.datetime.now()}'
         self.tweet_count_file.write(report_line)
 
-    def on_error(self, status):
+    def on_error(self, status: int):
         """If there is some Twitter API error, sends a notification and raises a ConnectionError.
 
         Args:
@@ -94,7 +94,8 @@ def connect_stream(
         auth: OAuthHandler, tweet_handler_map: Dict[str, utils.TweetHandler], time_limit: Union[int, None],
         batch_size: int=20, write_to_file: bool=True
 ):
-    """
+    """Creates a stream listener and begins listening for incoming tweets.
+    Uses the backoff package to attempt reconnection with exponential backoff on rate limits.
 
     Args:
         auth: authenticated Twitter API object
@@ -117,10 +118,9 @@ def connect_stream(
 
 def stream(
         q_list_names: Union[List[str], str], logger_filename: str='qs.log', logger_level: str='info',
-        time_limit: Union[int, None]=None, batch_size: int=50,
-        write_to_file: bool=True
+        time_limit: Union[int, None]=None, batch_size: int=50, write_to_file: bool=True
 ):
-    """
+    """Main function. Authorizes API object, creates a logger, parses questions to track, and kicks off stream listener.
 
     Args:
         q_list_names: str or a list of strings, key(s) to fetch the question list(s) and output name(s) from q_starts.py
