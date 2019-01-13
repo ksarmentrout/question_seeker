@@ -85,3 +85,5 @@ question_seeker/listener.py
 
 # Logs
 qs.log
+tweet_counter.txt
+
