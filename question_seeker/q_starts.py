@@ -5,6 +5,7 @@ all_starts = [
     'why am',
     'why are',
     'why can',
+    "why can't",
     'why do',
     "why don't",
     'why is',
@@ -14,6 +15,7 @@ all_starts = [
     'y am',
     'y are',
     'y can',
+    "y can't",
     'y do',
     "y don't",
     'y is',
@@ -29,7 +31,9 @@ all_starts = [
 
 capacity_starts = [
     'why can',
+    "why can't",
     'y can',
+    "y can't",
 ]
 
 
