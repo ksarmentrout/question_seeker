@@ -1,22 +1,28 @@
-import json
 import unittest
 
 import tweepy
 
-from question_seeker import tweepy_stream as streamer
+from question_seeker import multifile_stream as streamer
 from question_seeker import utils, q_starts
 
 
 class TestStreamer(unittest.TestCase):
     def setUp(self):
         # Use ['why am', 'y am'] to check
-        self.tracking_list = q_starts.get_q_list('personal')
-        self.pass1 = 'Why am I so tired?'
-        self.pass2 = "It's late, why am I still building this?"
-        self.pass3 = '...so y am I here?'
-        self.fail1 = "Why can't they just fly the eagles to Mordor?"
-        self.fail2 = "how does anyone not like pizza?"
-        self.fail3 = "why am I ignoring proper punctuation"
+        self.tracking_list, self.filename = q_starts.get_q_list_and_filename('personal')
+        self.pass1 = {'text': 'Why am I so tired?'}
+        self.pass2 = {'text': "It's late, why am I still building this?"}
+        self.pass3 = {'text': '...so y am I here?'}
+        self.pass4 = {'text': "Why can't they just fly the eagles to Mordor?"}
+        self.pass5 = {'text': "I'M YELLING\nWHY AM I YELLING?"}
+        self.fail1 = {'text': 'Can someone tell me what to do?'}
+        self.fail2 = {'text': "how does anyone not like pizza?"}
+        self.fail3 = {'text': "why am I ignoring proper punctuation"}
+        self.track_list_ids = ['personal', 'capacity']
+        self.tweet_list = [
+            self.pass1, self.pass2, self.pass3, self.pass4, self.pass5, self.fail1, self.fail2, self.fail3
+        ]
+        self.batch_size = 10
 
     def test_aws_creds(self):
         # Loads credentials and validates against AWS validation endpoint
@@ -30,20 +36,20 @@ class TestStreamer(unittest.TestCase):
         stream_result = streamer.stream('all', time_limit=1, write_to_file=False)
         assert stream_result is True
 
-    def test_parser(self):
-        assert utils.parse(self.pass1, self.tracking_list) is True
-        assert utils.parse(self.pass2, self.tracking_list) is True
-        assert utils.parse(self.pass3, self.tracking_list) is True
-        assert utils.parse(self.fail1, self.tracking_list) is False
-        assert utils.parse(self.fail2, self.tracking_list) is False
-        assert utils.parse(self.fail3, self.tracking_list) is False
+    def test_tweet_handler_map(self):
+        tweet_handler_map = utils.get_tweet_handler_map(self.track_list_ids, self.batch_size, write_to_file=False)
+        assert set(tweet_handler_map.keys()) == set(q_starts.personal_starts + q_starts.capacity_starts)
 
-    def test_batch_parser(self):
-        tweet_list = [self.pass1, self.pass2, self.fail1, self.fail2]
-        tweet_dict_list = [{'text': x} for x in tweet_list]
-        passing_dict_list = [json.dumps({'text': x}) for x in [self.pass1, self.pass2]]
-        surviving_tweets = utils.parse_tweets(tweet_dict_list, self.tracking_list)
-        assert surviving_tweets == passing_dict_list
+    def test_get_full_tracking_list(self):
+        tweet_handler_map = utils.get_tweet_handler_map(self.track_list_ids, self.batch_size, write_to_file=False)
+        full_list = utils.get_full_tracking_list(tweet_handler_map)
+        assert sorted(full_list) == sorted(q_starts.personal_starts + q_starts.capacity_starts)
+
+    def test_process_tweets(self):
+        tweet_handler_map = utils.get_tweet_handler_map(self.track_list_ids, self.batch_size, write_to_file=False)
+        utils.process_tweets(self.tweet_list, tweet_handler_map)
+        assert len(tweet_handler_map['why am'].bucket) == 4
+        assert len(tweet_handler_map['why can'].bucket) == 1
 
     def test_send_sms(self):
         status = utils.send_sms('Keep up the good work! :)')
