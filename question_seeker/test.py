@@ -1,9 +1,7 @@
-import json
 import unittest
 
 import tweepy
 
-# from question_seeker import tweepy_stream as streamer
 from question_seeker import multifile_stream as streamer
 from question_seeker import utils, q_starts
 

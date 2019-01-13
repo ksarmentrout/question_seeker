@@ -109,6 +109,7 @@ def stream(
     Args:
         q_list_names: str or a list of strings, key(s) to fetch the question list(s) and output name(s) from q_starts.py
         logger_filename: str, name for logfile
+        logger_level: str, level for reporting logging
         time_limit: int or None, amount of time to keep the stream open. Setting to None listens indefinitely
         output_filename: str, name of a file to write to
         batch_size: int, number of tweets to hold in memory before parsing. In v1 without multiprocessing, this is set

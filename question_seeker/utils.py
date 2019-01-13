@@ -85,7 +85,7 @@ class TweetHandler:
 
     def add_tweet(self, tweet: str):
         self.bucket.append(tweet)
-        if len(self.bucket) == self.batch_size:
+        if len(self.bucket) >= self.batch_size:
             if self.write_to_file:
                 self.write_tweets()
             self.bucket = []
