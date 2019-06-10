@@ -19,21 +19,21 @@ PATTERN = r"(\b(why|y|who|what|where|how)\b \b(am|are|can|can't|did|do|don't|is|
 R = re.compile(PATTERN, flags=re.IGNORECASE)
 
 
-def send_sms(msg: str) -> int:
-    """Sends an SMS notification via IFTTT webhook integration.
+def send_email(msg: str) -> int:
+    """Sends an email via IFTTT webhook integration.
 
     Args:
-        msg: str, body of the SMS
+        msg: str, body of the email
 
     Returns:
         int, status code of POST request
     """
-    url = 'https://maker.ifttt.com/trigger/connection_failed/with/key/{}'.format(os.environ.get('IFTTT_KEY'))
+    url = f'https://maker.ifttt.com/trigger/qseek_post/with/key/{os.environ.get("IFTTT_KEY")}'
     data = {"value1": msg}
-    logger.info(f'Sending SMS with body "{msg}"')
+    logger.info(f'Sending email with body "{msg}"')
     resp = requests.post(url, data=data)
     if not resp.ok:
-        logger.error(f'Sending SMS failed with status code {resp.status_code}')
+        logger.error(f'Sending email failed with status code {resp.status_code}')
     return resp.status_code
 
 

@@ -95,12 +95,12 @@ class Listener(StreamListener):
 
         # Raise error
         logger.error(f'Twitter API connection failed with status code {status}. Reconnecting.')
-        utils.send_sms(f'Twitter API connection failed with status code {status}. Reconnecting.')
+        utils.send_email(f'Twitter API connection failed with status code {status}. Reconnecting.')
         raise ConnectionError(status)
 
 
 @backoff.on_exception(backoff.expo, ConnectionError, max_tries=8,
-                      on_giveup=lambda x: utils.send_sms('Giving up reconnecting after 8 tries. App down.'))
+                      on_giveup=lambda x: utils.send_email('Giving up reconnecting after 8 tries. App down.'))
 def connect_stream(
         auth: OAuthHandler,
         tweet_handler_map: Dict[str, utils.TweetHandler],

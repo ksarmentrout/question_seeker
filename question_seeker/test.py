@@ -1,28 +1,40 @@
-import unittest
+import os
 
 import tweepy
 
-from question_seeker import multifile_stream as streamer
+from question_seeker import stream as streamer
 from question_seeker import utils, q_starts
 
 
-class TestStreamer(unittest.TestCase):
-    def setUp(self):
+class TestStreamer:
+    @classmethod
+    def setup_class(cls):
         # Use ['why am', 'y am'] to check
-        self.tracking_list, self.filename = q_starts.get_q_list_and_filename('personal')
-        self.pass1 = {'text': 'Why am I so tired?'}
-        self.pass2 = {'text': "It's late, why am I still building this?"}
-        self.pass3 = {'text': '...so y am I here?'}
-        self.pass4 = {'text': "Why can't they just fly the eagles to Mordor?"}
-        self.pass5 = {'text': "I'M YELLING\nWHY AM I YELLING?"}
-        self.fail1 = {'text': 'Can someone tell me what to do?'}
-        self.fail2 = {'text': "how does anyone not like pizza?"}
-        self.fail3 = {'text': "why am I ignoring proper punctuation"}
-        self.track_list_ids = ['personal', 'capacity']
-        self.tweet_list = [
-            self.pass1, self.pass2, self.pass3, self.pass4, self.pass5, self.fail1, self.fail2, self.fail3
+        cls.tracking_list, cls.filename = q_starts.get_q_list_and_filename('personal')
+        cls.pass1 = {'text': 'Why am I so tired?'}
+        cls.pass2 = {'text': "It's late, why am I still building this?"}
+        cls.pass3 = {'text': '...so y am I here?'}
+        cls.pass4 = {'text': "Why can't they just fly the eagles to Mordor?"}
+        cls.pass5 = {'text': "I'M YELLING\nWHY AM I YELLING?"}
+        cls.fail1 = {'text': 'Can someone tell me what to do?'}
+        cls.fail2 = {'text': "how does anyone not like pizza?"}
+        cls.fail3 = {'text': "why am I ignoring proper punctuation"}
+        cls.track_list_ids = ['personal', 'capacity']
+        cls.tweet_list = [
+            cls.pass1, cls.pass2, cls.pass3, cls.pass4, cls.pass5, cls.fail1, cls.fail2, cls.fail3
         ]
-        self.batch_size = 10
+        cls.batch_size = 10
+
+    @classmethod
+    def teardown_class(cls):
+        """Remove all generated files
+        """
+        for filename in [
+            'all_tweets.json',
+            'capacity_tweets.json',
+            'personal_tweets.json',
+        ]:
+            os.remove(filename)
 
     def test_aws_creds(self):
         # Loads credentials and validates against AWS validation endpoint
@@ -51,6 +63,6 @@ class TestStreamer(unittest.TestCase):
         assert len(tweet_handler_map['why am'].bucket) == 4
         assert len(tweet_handler_map['why can'].bucket) == 1
 
-    def test_send_sms(self):
-        status = utils.send_sms('Keep up the good work! :)')
+    def test_send_email(self):
+        status = utils.send_email('Keep up the good work! :)')
         assert status == 200
