@@ -4,7 +4,12 @@ import os
 import re
 import requests
 import tweepy
-from typing import Dict, List, TextIO, Union
+from typing import (
+    Dict,
+    List,
+    TextIO,
+    Union,
+)
 
 from question_seeker.log import LOGGER as logger
 from question_seeker import q_starts
@@ -99,8 +104,11 @@ class TweetHandler:
         return f'TweetHandler with filename "{self.filename}" holding {len(self.bucket)} tweets'
 
 
-def get_tweet_handler_map(q_list_names: Union[List[str], str], batch_size: int, write_to_file: bool)\
-        -> Dict[str, TweetHandler]:
+def get_tweet_handler_map(
+        q_list_names: Union[List[str], str],
+        batch_size: int,
+        write_to_file: bool
+) -> Dict[str, TweetHandler]:
     """Creates a dictionary from question start to TweetHandler object for each question start matching the
     list of question titles passed in.
 
@@ -169,7 +177,11 @@ def process(tweet: dict, tweet_handler_map: Dict[str, TweetHandler]):
             logger.debug(f'Added tweet to handler {tweet_handler_map[q_lead.lower()]}')
 
 
-def process_tweets(tweet_list: List[dict], tweet_handler_map: Dict[str, TweetHandler], force_write: bool=False):
+def process_tweets(
+        tweet_list: List[dict],
+        tweet_handler_map: Dict[str, TweetHandler],
+        force_write: bool = False
+):
     """Filters a batch of collected tweets for the presence of one of the tracked questions, adding relevant tweets
     to the appropriate TweetHandler object via the add_tweet() method.
 
@@ -182,5 +194,5 @@ def process_tweets(tweet_list: List[dict], tweet_handler_map: Dict[str, TweetHan
         process(tweet, tweet_handler_map)
 
     if force_write:
-        for tweet_handler in tweet_handler_map.values():
+        for tweet_handler in list(set(tweet_handler_map.values())):
             tweet_handler.write_tweets()

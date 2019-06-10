@@ -1,7 +1,12 @@
 import datetime
 import json
 import time
-from typing import Dict, List, Union
+from typing import (
+    Dict,
+    List,
+    Optional,
+    Union,
+)
 
 import backoff
 import fire
@@ -15,8 +20,13 @@ logger = log.LOGGER
 
 
 class Listener(StreamListener):
-    def __init__(self, tweet_handler_map: Dict[str, utils.TweetHandler], time_limit: Union[None, int]=None,
-                 batch_size: int=50, write_to_file: bool=True):
+    def __init__(
+            self,
+            tweet_handler_map: Dict[str, utils.TweetHandler],
+            time_limit: Optional[int] = None,
+            batch_size: int = 50,
+            write_to_file: bool = True,
+    ):
         super().__init__()
         self.tweet_handler_map = tweet_handler_map
         self.time_limit = time_limit
@@ -92,8 +102,11 @@ class Listener(StreamListener):
 @backoff.on_exception(backoff.expo, ConnectionError, max_tries=8,
                       on_giveup=lambda x: utils.send_sms('Giving up reconnecting after 8 tries. App down.'))
 def connect_stream(
-        auth: OAuthHandler, tweet_handler_map: Dict[str, utils.TweetHandler], time_limit: Union[int, None],
-        batch_size: int=20, write_to_file: bool=True
+        auth: OAuthHandler,
+        tweet_handler_map: Dict[str, utils.TweetHandler],
+        time_limit: Optional[int],
+        batch_size: int = 20,
+        write_to_file: bool = True
 ):
     """Creates a stream listener and begins listening for incoming tweets.
     Uses the backoff package to attempt reconnection with exponential backoff on rate limits.
@@ -118,8 +131,12 @@ def connect_stream(
 
 
 def stream(
-        q_list_names: Union[List[str], str], logger_filename: str='qs.log', logger_level: str='info',
-        time_limit: Union[int, None]=None, batch_size: int=50, write_to_file: bool=True
+        q_list_names: Union[List[str], str],
+        logger_filename: str = 'qs.log',
+        logger_level: str = 'info',
+        time_limit: Optional[int] = None,
+        batch_size: int = 50,
+        write_to_file: bool = True,
 ):
     """Main function. Authorizes API object, creates a logger, parses questions to track, and kicks off stream listener.
 
