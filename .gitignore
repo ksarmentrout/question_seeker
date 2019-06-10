@@ -82,8 +82,11 @@ question_seeker/*_tweets.json
 
 # Early attempt
 question_seeker/listener.py
+question_seeker/charparser.py
 
 # Logs
 qs.log
 tweet_counter.txt
 
+# aws?
+aws_deployment/
