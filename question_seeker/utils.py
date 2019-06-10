@@ -7,9 +7,9 @@ from question_seeker.log import LOGGER as logger
 
 
 GOVT_PATTERNS = [
-    r"(\b(the government|trump)\b should .+",
-    r"(\b(why doesn't) \b(the government|trump)\b .+",
-    r"(\b(why does) \b(the government|trump)\b not .+",
+    r"(\b(the government|trump)\b should) .+",
+    r"(\b(why doesn't) \b(the government|trump)\b) .+",
+    r"(\b(why does) \b(the government|trump)\b not) .+",
 ]
 GOVT_RS = [re.compile(x, flags=re.IGNORECASE) for x in GOVT_PATTERNS]
 
