@@ -73,6 +73,15 @@ personal_starts = [
 ]
 
 
+govt_starts = [
+    'the government should',
+    "why doesn't the government",
+    "why does the government not",
+    'trump should',
+    "why doesn't trump",
+    "why does trump not",
+]
+
 test_start = [
     'cat'
 ]
@@ -84,6 +93,7 @@ def get_q_list(q_list_name: str) -> List[str]:
         'capacity': capacity_starts,
         'categorizing': categorizing_starts,
         'factual': factual_starts,
+        'govt': govt_starts,
         'imperative': imperative_starts,
         'personal': personal_starts,
         'test': test_start
@@ -97,6 +107,7 @@ def get_q_list_and_filename(q_list_name: str) -> Tuple[List[str], str]:
         'capacity': (capacity_starts, 'capacity_tweets.json'),
         'categorizing': (categorizing_starts, 'categorizing_tweets.json'),
         'factual': (factual_starts, 'factual_tweets.json'),
+        'govt': (govt_starts, 'govt_tweets.json'),
         'imperative': (imperative_starts, 'imperative_tweets.json'),
         'personal': (personal_starts, 'personal_tweets.json'),
         'test': (test_start, 'tweets.json')
