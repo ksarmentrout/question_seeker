@@ -13,7 +13,11 @@ import fire
 from tweepy import Stream, OAuthHandler
 from tweepy.streaming import StreamListener
 
-from question_seeker import log, utils
+from question_seeker import (
+    log,
+    processing,
+    utils,
+)
 
 
 logger = log.LOGGER
@@ -22,7 +26,7 @@ logger = log.LOGGER
 class Listener(StreamListener):
     def __init__(
             self,
-            tweet_handler_map: Dict[str, utils.TweetHandler],
+            tweet_handler_map: Dict[str, processing.TweetHandler],
             time_limit: Optional[int] = None,
             batch_size: int = 50,
             write_to_file: bool = True,
@@ -50,7 +54,7 @@ class Listener(StreamListener):
         def process_tweet(t_data):
             self.tweet_list.append(json.loads(t_data))
             if len(self.tweet_list) >= self.batch_size:
-                utils.process_tweets(self.tweet_list, self.tweet_handler_map)
+                processing.process_tweets(self.tweet_list, self.tweet_handler_map)
                 self.total_tweet_counter += len(self.tweet_list)
                 if self.total_tweet_counter % 1000 == 0:
                     self.report_tweet_count()
@@ -64,7 +68,7 @@ class Listener(StreamListener):
             else:
                 print('Stopping tweet collection')
                 logger.info('Stopping tweet collection')
-                utils.process_tweets(self.tweet_list, self.tweet_handler_map, force_write=True)
+                processing.process_tweets(self.tweet_list, self.tweet_handler_map, force_write=True)
                 return False
         else:
             # Process data infinitely
@@ -76,14 +80,15 @@ class Listener(StreamListener):
         self.tweet_count_file.write(report_line)
 
     def on_error(self, status: int):
-        """If there is some Twitter API error, sends a notification and raises a ConnectionError.
+        """
+        If there is some Twitter API error, sends a notification and raises a ConnectionError.
 
         Args:
             status: API error code
         """
         # Write all held tweets to files before closing
         self.total_tweet_counter += len(self.tweet_list)
-        utils.process_tweets(self.tweet_list, self.tweet_handler_map, force_write=True)
+        processing.process_tweets(self.tweet_list, self.tweet_handler_map, force_write=True)
 
         # Close files
         for tweet_handler in self.tweet_handler_map.values():
@@ -103,12 +108,13 @@ class Listener(StreamListener):
                       on_giveup=lambda x: utils.send_email('Giving up reconnecting after 8 tries. App down.'))
 def connect_stream(
         auth: OAuthHandler,
-        tweet_handler_map: Dict[str, utils.TweetHandler],
+        tweet_handler_map: Dict[str, processing.TweetHandler],
         time_limit: Optional[int],
         batch_size: int = 20,
         write_to_file: bool = True
 ):
-    """Creates a stream listener and begins listening for incoming tweets.
+    """
+    Creates a stream listener and begins listening for incoming tweets.
     Uses the backoff package to attempt reconnection with exponential backoff on rate limits.
 
     Args:
@@ -126,7 +132,7 @@ def connect_stream(
 
     # Begin streaming
     logger.info('Beginning streaming')
-    tracking = utils.get_full_tracking_list(tweet_handler_map)
+    tracking = processing.get_full_tracking_list(tweet_handler_map)
     t_stream.filter(track=tracking)
 
 
@@ -138,7 +144,8 @@ def stream(
         batch_size: int = 50,
         write_to_file: bool = True,
 ):
-    """Main function. Authorizes API object, creates a logger, parses questions to track, and kicks off stream listener.
+    """
+    Main function. Authorizes API object, creates a logger, parses questions to track, and kicks off stream listener.
 
     Args:
         q_list_names: str or a list of strings, key(s) to fetch the question list(s) and output name(s) from q_starts.py
@@ -160,7 +167,7 @@ def stream(
 
     # Get the tweet handling objects
     q_list_names = [q_list_names] if not isinstance(q_list_names, list) else q_list_names
-    tweet_handler_map = utils.get_tweet_handler_map(q_list_names, batch_size, write_to_file)
+    tweet_handler_map = processing.get_tweet_handler_map(q_list_names, batch_size, write_to_file)
 
     # Connect to a stream using exponential backoff in the event of a connection error
     connect_stream(auth, tweet_handler_map, time_limit, batch_size=batch_size, write_to_file=write_to_file)
