@@ -1,12 +1,12 @@
 import os
 
-import tweepy
+from question_seeker import (
+    q_starts,
+    processing,
+)
 
-from question_seeker import stream as streamer
-from question_seeker import utils, q_starts
 
-
-class TestStreamer:
+class TestProcessing:
     @classmethod
     def setup_class(cls):
         # Use ['why am', 'y am'] to check
@@ -27,7 +27,8 @@ class TestStreamer:
 
     @classmethod
     def teardown_class(cls):
-        """Remove all generated files
+        """
+        Remove all generated files
         """
         for filename in [
             'all_tweets.json',
@@ -36,33 +37,18 @@ class TestStreamer:
         ]:
             os.remove(filename)
 
-    def test_aws_creds(self):
-        # Loads credentials and validates against AWS validation endpoint
-        auth = utils.get_auth()
-        api = tweepy.API(auth)
-
-        # This function returns a User object if the credentials are valid, False otherwise
-        assert type(api.verify_credentials()) == tweepy.User
-
-    def test_stream(self):
-        stream_result = streamer.stream('all', time_limit=1, write_to_file=False)
-        assert stream_result is True
-
     def test_tweet_handler_map(self):
-        tweet_handler_map = utils.get_tweet_handler_map(self.track_list_ids, self.batch_size, write_to_file=False)
+        tweet_handler_map = processing.get_tweet_handler_map(self.track_list_ids, self.batch_size, write_to_file=False)
         assert set(tweet_handler_map.keys()) == set(q_starts.personal_starts + q_starts.capacity_starts)
 
     def test_get_full_tracking_list(self):
-        tweet_handler_map = utils.get_tweet_handler_map(self.track_list_ids, self.batch_size, write_to_file=False)
-        full_list = utils.get_full_tracking_list(tweet_handler_map)
+        tweet_handler_map = processing.get_tweet_handler_map(self.track_list_ids, self.batch_size, write_to_file=False)
+        full_list = processing.get_full_tracking_list(tweet_handler_map)
         assert sorted(full_list) == sorted(q_starts.personal_starts + q_starts.capacity_starts)
 
     def test_process_tweets(self):
-        tweet_handler_map = utils.get_tweet_handler_map(self.track_list_ids, self.batch_size, write_to_file=False)
-        utils.process_tweets(self.tweet_list, tweet_handler_map)
+        tweet_handler_map = processing.get_tweet_handler_map(self.track_list_ids, self.batch_size, write_to_file=False)
+        processing.process_tweets(self.tweet_list, tweet_handler_map)
         assert len(tweet_handler_map['why am'].bucket) == 4
         assert len(tweet_handler_map['why can'].bucket) == 1
 
-    def test_send_email(self):
-        status = utils.send_email('Keep up the good work! :)')
-        assert status == 200

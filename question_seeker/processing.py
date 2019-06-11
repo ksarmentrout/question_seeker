@@ -54,7 +54,8 @@ def get_tweet_handler_map(
         batch_size: int,
         write_to_file: bool
 ) -> Dict[str, TweetHandler]:
-    """Creates a dictionary from question start to TweetHandler object for each question start matching the
+    """
+    Creates a dictionary from question start to TweetHandler object for each question start matching the
     list of question titles passed in.
 
     Args:
