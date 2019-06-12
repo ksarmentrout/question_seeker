@@ -15,6 +15,14 @@ PATTERN = r"(\b(why|y|who|what|where|how)\b \b(am|are|can|can't|did|do|don't|is|
 R = re.compile(PATTERN, flags=re.IGNORECASE)
 
 
+GOVT_PATTERNS = [
+    r"(\b(the government|trump)\b should) .+",
+    r"(\b(why doesn't) \b(the government|trump)\b) .+",
+    r"(\b(why does) \b(the government|trump)\b not) .+",
+]
+GOVT_RS = [re.compile(x, flags=re.IGNORECASE) for x in GOVT_PATTERNS]
+
+
 class TweetHandler:
     def __init__(self, starts: List[str], filename: str, batch_size: int, write_to_file: bool):
         self.starts = starts
@@ -50,7 +58,7 @@ class TweetHandler:
 
 
 def get_tweet_handler_map(
-        q_list_names: Union[List[str], str],
+        q_list_names: List[str],
         batch_size: int,
         write_to_file: bool
 ) -> Dict[str, TweetHandler]:
@@ -107,21 +115,26 @@ def process(tweet: dict, tweet_handler_map: Dict[str, TweetHandler]):
     if '\n' in tweet_text:
         tweet_text = tweet_text.replace('\n', ' ')
 
-    match = R.search(tweet_text)
     logger.debug(f'String to parse: {tweet_text}')
+    match = R.search(tweet_text)
+
+    # Try govt list
+    if not match:
+        for GOVT_R in GOVT_RS:
+            match = GOVT_R.search(tweet_text)
+            if match:
+                break
 
     if match:
         logger.debug(f'Match groups: {match.groups()}')
-    else:
-        logger.debug('No match')
-
-    if match:
         q_lead = match.groups()[0].rstrip()
         logger.debug(f'Question lead: {q_lead}')
         logger.debug(f'Tweet handler map keys: {tweet_handler_map.keys()}')
         if q_lead.lower() in tweet_handler_map:
             tweet_handler_map[q_lead.lower()].add_tweet(json.dumps(tweet))
             logger.debug(f'Added tweet to handler {tweet_handler_map[q_lead.lower()]}')
+    else:
+        logger.debug('No match')
 
 
 def process_tweets(
