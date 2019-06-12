@@ -90,3 +90,6 @@ tweet_counter.txt
 
 # aws?
 aws_deployment/
+
+# dev
+scratch.py
