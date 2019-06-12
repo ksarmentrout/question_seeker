@@ -19,6 +19,7 @@ def set_log_config(
         Logger object
     """
     global LOGGER
+    level = level.lower()
     level_lookup = {
         'debug': logging.DEBUG,
         'info': logging.INFO,
