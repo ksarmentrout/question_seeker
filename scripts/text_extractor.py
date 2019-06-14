@@ -24,6 +24,9 @@ def clean_tweet(tweet: str) -> str:
     # Remove smart apostrophe
     tweet = tweet.replace(u'\u2019', "'")
 
+    # Ampersand encodings
+    tweet = tweet.replace('&amp;', '&')
+
     # Remove newline
     tweet = tweet.replace('\n', ' ')
 
@@ -36,18 +39,25 @@ def write_tweets(
         save_to_json: bool = True,
         append_to_json: bool = False,
 ):
-    file = open(output_fn, 'a')
+    tweet_json = {}
+    if save_to_json and append_to_json:
+        with open(output_fn) as readfile:
+            tweet_json = json.load(readfile)
+
+    file = open(output_fn, 'w')
+
+    # Remove duplicates
+    tweets = list(set(tweets))
 
     if save_to_json:
         if append_to_json:
-            tweet_json = json.load(file)
             if isinstance(tweet_json.get('tweet'), list):
                 tweet_json['tweet'].extend(tweets)
             else:
                 tweet_json['tweet'] = tweets
         else:
             tweet_json = {'tweet': tweets}
-        json.dump(tweet_json, file)
+        json.dump(tweet_json, file, indent=4, ensure_ascii=False)
     else:
         file.writelines(tweets)
 
@@ -76,6 +86,7 @@ def extract_tweet_body(
         raise FileNotFoundError(f'No file found named {input_fn}')
 
     tweets = []
+    include_newline = not save_to_json
 
     with open(input_fn) as file:
         for line in file:
@@ -86,7 +97,10 @@ def extract_tweet_body(
                 tweet = tdict['text']
 
             tweet = clean_tweet(tweet)
-            tweets.append(f'{tweet}\n')
+            if include_newline:
+                tweet = tweet + '\n'
+
+            tweets.append(tweet)
 
     # Save tweets
     write_tweets(tweets, output_fn, save_to_json, append_to_json)
@@ -111,6 +125,8 @@ def handler(
     # Create output filename if none was passed
     if output_fn is None:
         output_fn = input_fn[:input_fn.find('.')]
+        if output_fn.endswith('tweets'):
+            output_fn = output_fn[:-6] + 'texts'
         output_fn += '.json' if save_to_json else '.txt'
 
     extract_tweet_body(
