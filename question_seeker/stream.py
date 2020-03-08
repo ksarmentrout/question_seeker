@@ -1,3 +1,6 @@
+"""
+Listener functions for reading from Twitter API.
+"""
 import datetime
 import json
 import time
@@ -31,6 +34,16 @@ class Listener(StreamListener):
             batch_size: int = 50,
             write_to_file: bool = True,
     ):
+        """
+        Wrapper for the tweepy StreamListener object that injects additional behavior when data is retrieved.
+
+        Args:
+            tweet_handler_map: Dictionary of prompt starts to Handler objects
+            time_limit: optional amount of time to listen for before stopping. Continues listening indefinitely if
+                this is set to None
+            batch_size: How many tweets to accumulate before writing them all to disk
+            write_to_file: whether to write tweets to disk or not
+        """
         super().__init__()
         self.tweet_handler_map = tweet_handler_map
         self.time_limit = time_limit
@@ -43,7 +56,8 @@ class Listener(StreamListener):
         self.tweet_count_file = utils.FileWrapper('tweet_counter.txt')
 
     def on_data(self, data: str) -> bool:
-        """Processes incoming tweet data from Twitter API stream.
+        """
+        Processes incoming tweet data from Twitter API stream.
 
         Args:
             data: string representation of a dictionary with tweet and metadata
@@ -151,7 +165,7 @@ def stream(
         q_list_names: str or a list of strings, key(s) to fetch the question list(s) and output name(s) from q_starts.py
         logger_filename: str, name for logfile
         logger_level: str, level for reporting logging
-        time_limit: int or None, amount of time to keep the stream open. Setting to None listens indefinitely
+        time_limit: int or None, amount of time (s) to keep the stream open. Setting to None listens indefinitely
         batch_size: int, number of tweets to hold in memory before parsing. In v1 without multiprocessing, this is set
             low by default so that the parsing and writing doesn't block getting additional stream data.
         write_to_file: bool, whether to write tweets to a file. Can set False for testing purposes.
