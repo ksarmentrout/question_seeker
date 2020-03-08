@@ -83,6 +83,7 @@ question_seeker/*_tweets.json
 # Early attempt
 question_seeker/listener.py
 question_seeker/charparser.py
+v1_tools/
 
 # Logs
 qs.log

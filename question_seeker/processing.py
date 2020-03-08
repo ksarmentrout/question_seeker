@@ -79,7 +79,12 @@ def get_full_tracking_list(tweet_handler_map: Dict[str, TweetHandler]) -> List[s
     return list(chain.from_iterable([x.starts for x in tweet_handlers]))
 
 
-def process(tweet: dict, tweet_handler_map: Dict[str, TweetHandler]):
+def process(
+        tweet: dict,
+        tweet_handler_map: Dict[str, TweetHandler],
+        ignore_retweets: bool = True,
+        ignore_replies: bool = True,
+):
     """
     Checks if a string is asking a question that is being tracked.
     Assumptions:
@@ -94,8 +99,16 @@ def process(tweet: dict, tweet_handler_map: Dict[str, TweetHandler]):
     # Ignore retweets
     # Only looking for original queries, not echoing other ideas, even if it indicates agreement.
     # Cuts down on redundancy of saved tweets.
-    if tweet.get('retweeted_status'):
-        return
+    if ignore_retweets:
+        if tweet.get('retweeted_status') is not None:
+            return
+
+    # Ignore direct replies to people
+    # Only looking for questions posed to the general public, not to
+    # specific people
+    if ignore_replies:
+        if tweet.get('in_reply_to_user_id') is not None:
+            return
 
     # Account for extended tweet field
     if tweet.get('extended_tweet'):
