@@ -11,7 +11,10 @@ from question_seeker.log import LOGGER as logger
 from question_seeker import q_starts, utils
 
 
-PATTERN = r"(\b(why|y|who|what|where|how)\b \b(am|are|can|can't|did|do|don't|is|must|should)\b) .+\?"
+# PATTERN = r"(\b(why|y|who|what|where|how)\b \b(am|are|can|can't|did|do|don't|is|must|should)\b) .+\?"
+
+# For now, limit to just "imperative" starts
+PATTERN = r"(\b(why|y|who|what|where|how)\b \b(must|should)\b) .+\?"
 R = re.compile(PATTERN, flags=re.IGNORECASE)
 
 
@@ -127,6 +130,17 @@ def process(
         logger.debug(f'Match groups: {match.groups()}')
     else:
         logger.debug('No match')
+
+    # Don't consider tweets with >2 hashtags.
+    # Making the assumption that 3+ hashtags indicates engagement ploys
+    # rather than seeking an actual answer.
+    if tweet_text.count('#') > 2:
+        return
+
+    # Don't consider tweets with >2 @ mentions.
+    # Also making the assumption that 3+ mentions are engagement ploys
+    if tweet_text.count('@') > 2:
+        return
 
     if match:
         q_lead = match.groups()[0].rstrip()
