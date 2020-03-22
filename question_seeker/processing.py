@@ -87,6 +87,7 @@ def process(
         tweet_handler_map: Dict[str, TweetHandler],
         ignore_retweets: bool = True,
         ignore_replies: bool = True,
+        ignore_links: bool = True,
 ):
     """
     Checks if a string is asking a question that is being tracked.
@@ -98,6 +99,9 @@ def process(
     Args:
         tweet: tweet to match against
         tweet_handler_map: mapping of question starts to TweetHandler objects
+        ignore_retweets:
+        ignore_replies:
+        ignore_links:
     """
     # Ignore retweets
     # Only looking for original queries, not echoing other ideas, even if it indicates agreement.
@@ -111,6 +115,31 @@ def process(
     # specific people
     if ignore_replies:
         if tweet.get('in_reply_to_user_id') is not None:
+            return
+
+    media = tweet['entities']
+
+    # Don't consider tweets with >2 hashtags.
+    # Making the assumption that 3+ hashtags indicates engagement ploys
+    # rather than seeking an actual answer.
+    # if tweet_text.count('#') > 2:
+    #     return
+    if len(media['hashtags']) > 2:
+        return
+
+    # Don't consider tweets with >2 @ mentions.
+    # Also making the assumption that 3+ mentions are engagement ploys
+    # if tweet_text.count('@') > 2:
+    #     return
+    if len(media['user_mentions']) > 2:
+        return
+
+    # Ignore all media.
+    # This includes both web links and attached images. I'm not planning on fetching and
+    # rendering images or arbitrary links but don't want to present tweets without context,
+    # so for now just ignore any tweets with external links.
+    if ignore_links:
+        if media['media'] or media['urls']:
             return
 
     # Account for extended tweet field
@@ -130,17 +159,6 @@ def process(
         logger.debug(f'Match groups: {match.groups()}')
     else:
         logger.debug('No match')
-
-    # Don't consider tweets with >2 hashtags.
-    # Making the assumption that 3+ hashtags indicates engagement ploys
-    # rather than seeking an actual answer.
-    if tweet_text.count('#') > 2:
-        return
-
-    # Don't consider tweets with >2 @ mentions.
-    # Also making the assumption that 3+ mentions are engagement ploys
-    if tweet_text.count('@') > 2:
-        return
 
     if match:
         q_lead = match.groups()[0].rstrip()
