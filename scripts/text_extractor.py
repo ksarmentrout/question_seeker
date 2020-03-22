@@ -1,11 +1,13 @@
 import json
 import os
+import random
+import string
 from typing import (
-    List,
     Optional,
 )
 
 import fire
+import pandas as pd
 
 
 def clean_tweet(tweet: str) -> str:
@@ -34,41 +36,35 @@ def clean_tweet(tweet: str) -> str:
 
 
 def write_tweets(
-        tweets: List[str],
+        tweets: pd.DataFrame,
         output_fn: str,
-        save_to_json: bool = True,
-        append_to_json: bool = False,
+        append: bool = False,
 ):
-    tweet_json = {}
-    if save_to_json and append_to_json:
-        with open(output_fn) as readfile:
-            tweet_json = json.load(readfile)
+    """
+    Saves tweets to a json file
 
-    file = open(output_fn, 'w')
+    Args:
+        tweets: DataFrame of tweet info
+        output_fn: output filename
+        append: if True, appends new tweets to the existing file at `output_fn`
+    """
+    # Open existing file and append new tweets
+    if append:
+        df = pd.read_json(output_fn)
+        tweets = pd.concat([df, tweets])
 
     # Remove duplicates
-    tweets = list(set(tweets))
+    tweets = tweets[~tweets.duplicated('tweet_id')]
 
-    if save_to_json:
-        if append_to_json:
-            if isinstance(tweet_json.get('tweet'), list):
-                tweet_json['tweet'].extend(tweets)
-            else:
-                tweet_json['tweet'] = tweets
-        else:
-            tweet_json = {'tweet': tweets}
-        json.dump(tweet_json, file, indent=4, ensure_ascii=False)
-    else:
-        file.writelines(tweets)
-
-    file.close()
+    # Save
+    with open(output_fn, 'w', encoding='utf-8') as file:
+        tweets.to_json(file, force_ascii=False, orient='records')
 
 
-def extract_tweet_body(
+def extract_tweet_info(
         input_fn: str,
         output_fn: str,
-        save_to_json: bool = True,
-        append_to_json: bool = False,
+        append: bool = False,
 ):
     """
     Extracts the body of the tweet from the massive dict of metadata
@@ -76,17 +72,15 @@ def extract_tweet_body(
     the `extended_tweet` field (added after the switch to 280 chars).
 
     Args:
-        input_fn: input filename containing full tweet info dicts
+        input_fn: input json filename containing full tweet info as dictionaries
         output_fn: output filename
-        save_to_json: whether to save tweets as a json file (otherwise .txt)
-        append_to_json: whether to append to existing json file structure or overwrite/create new
+        append: if True, appends new tweets to the existing file at `output_fn`
     """
     # Check that input file is actually there
     if not os.path.exists(input_fn):
         raise FileNotFoundError(f'No file found named {input_fn}')
 
     tweets = []
-    include_newline = not save_to_json
 
     with open(input_fn) as file:
         for line in file:
@@ -97,46 +91,75 @@ def extract_tweet_body(
                 tweet = tdict['text']
 
             tweet = clean_tweet(tweet)
-            if include_newline:
-                tweet = tweet + '\n'
 
-            tweets.append(tweet)
+            # Get location info if available
+            if tdict.get('place') is not None:
+                tweetplace = tdict['place']
+                loc_name = tweetplace.get('full_name')
+                country = tweetplace.get('country_code')
+            else:
+                loc_name = ''
+                country = ''
+
+            # Make a random slug for the URL permalink
+            # This isn't cryptographically secure, but it doesn't have to be
+            slug = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+
+            tweet_dict = {
+                'tweet_text': tweet,
+                'tweet_id': tdict['id_str'],
+                'timestamp': tdict['created_at'],
+                'loc_name': loc_name,
+                'country': country,
+                'permalink_slug': slug,
+            }
+
+            tweets.append(tweet_dict)
+
+    # Make into a dataframe
+    df = pd.DataFrame(tweets)
 
     # Save tweets
-    write_tweets(tweets, output_fn, save_to_json, append_to_json)
+    write_tweets(df, output_fn, append)
 
 
 def handler(
         input_fn: str,
         output_fn: Optional[str] = None,
-        save_to_json: bool = True,
-        append_to_json: bool = False,
+        append: bool = False,
 ):
     """
-    Calls appropriate method based on json output preference.
-    Default is to output json
+    Make some runtime sanity checks and then call the text extractor.
 
     Args:
-        input_fn: input filename
-        output_fn: output filename
-        save_to_json: whether to save tweets as a json file (otherwise .txt)
-        append_to_json: whether to append to existing json file structure or overwrite/create new
+        input_fn: input filename - must be json.
+        output_fn: optional output filename
+        append: if True, appends new tweets to the existing file at `output_fn`
     """
+    # Check that input fn in json
+    if not input_fn.endswith('.json'):
+        raise RuntimeError(f'Input function must be a json file. Got "{input_fn}"')
+
     # Create output filename if none was passed
     if output_fn is None:
-        output_fn = input_fn[:input_fn.find('.')]
+        output_fn = input_fn.replace('.json', '')
         if output_fn.endswith('tweets'):
             output_fn = output_fn[:-6] + 'texts'
-        output_fn += '.json' if save_to_json else '.txt'
+        output_fn += '.json'
 
-    extract_tweet_body(
+    # Make sure that if we want to append new tweets to a file, the output file exists
+    if append:
+        if not os.path.exists(output_fn):
+            raise FileNotFoundError(
+                f'To append to a file, the output file needs to exist. File path "{output_fn}" does not exist.'
+            )
+
+    extract_tweet_info(
         input_fn,
         output_fn,
-        save_to_json,
-        append_to_json,
+        append,
     )
 
 
 if __name__ == '__main__':
     fire.Fire(handler)
-
