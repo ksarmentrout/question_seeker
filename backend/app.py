@@ -20,10 +20,10 @@ def create_app(config):
     return app
 
 
-# flask_app = create_app(Config)
+flask_app = create_app(Config)
 
 
 # Run the application
 if __name__ == '__main__':
-    flask_app = create_app(Config)
+    # flask_app = create_app(Config)
     flask_app.run(host='127.0.0.1', port=8000, debug=True, threaded=True)
