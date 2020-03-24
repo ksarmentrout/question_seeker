@@ -38,6 +38,7 @@ dependencies:
   - pip=20.0.2=py_2
   - pycparser=2.20=py_0
   - pyjwt=1.7.1=py_0
+  - pymysql
   - pyopenssl=19.1.0=py_1
   - pysocks=1.7.1=py38_0
   - python=3.8.2=hdc38147_4_cpython
