@@ -139,7 +139,7 @@ def process(
     # rendering images or arbitrary links but don't want to present tweets without context,
     # so for now just ignore any tweets with external links.
     if ignore_links:
-        if media['media'] or media['urls']:
+        if media['urls'] or media.get('media'):
             return
 
     # Account for extended tweet field

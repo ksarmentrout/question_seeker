@@ -12,6 +12,7 @@ class Config(object):
     DEBUG = True
     TESTING = True
     SQLALCHEMY_DATABASE_URI = (
-        f'mysql+pymysql://{myenv("MYSQL_USER")}:{myenv("MYSQL_PASS")}@{myenv("MYSQL_HOST")}/{myenv("MYSQL_DB")}'
+        f'mysql+pymysql://{myenv("MYSQL_DB_USER")}:{myenv("MYSQL_DB_PASS")}'
+        f'@{myenv("MYSQL_DB_HOST")}/{myenv("MYSQL_DB_NAME")}'
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
