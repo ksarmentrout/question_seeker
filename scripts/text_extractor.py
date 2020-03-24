@@ -108,7 +108,7 @@ def extract_tweet_info(
             tweet_dict = {
                 'tweet_text': tweet,
                 'tweet_id': tdict['id_str'],
-                'timestamp': tdict['created_at'],
+                'tweet_timestamp': tdict['created_at'],
                 'loc_name': loc_name,
                 'country': country,
                 'permalink_slug': slug,
