@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from flask_sqlalchemy import SQLAlchemy
@@ -10,9 +11,13 @@ db = SQLAlchemy()
 class Tweet(db.Model):
     __tablename__ = 'tweet'
     id = db.Column(db.Integer, primary_key=True)
+    created_date = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
     tweet_text = db.Column(db.String(280), nullable=False)
+    tweet_id = db.Column(db.String(32), nullable=False)
+    tweet_timestamp = db.Column(db.String(32), nullable=False)
+    loc_name = db.Column(db.String(128), nullable=True)
+    country = db.Column(db.String(128), nullable=True)
     permalink_slug = db.Column(db.String(7), nullable=True)
-    location = db.Column(db.String(255), nullable=True)
 
     def __repr__(self):
         return '<Tweet: %r>' % self.tweet_text
