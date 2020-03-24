@@ -1,3 +1,0 @@
-CREATE DATABASE qseek;
-CREATE USER qseek_user;
-GRANT ALL PRIVILEGES ON DATABASE qseek TO qseek_user;
