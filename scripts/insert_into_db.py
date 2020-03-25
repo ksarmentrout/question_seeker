@@ -18,6 +18,8 @@ db = MySQLdb.connect(
     db=os.environ.get('MYSQL_DB_NAME'),
     user=os.environ.get('MYSQL_DB_USER'),
     host=os.environ.get('MYSQL_DB_HOST'),
+    charset='utf8mb4',
+    use_unicode=True,
 )
 c = db.cursor()
 

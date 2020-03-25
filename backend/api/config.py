@@ -13,6 +13,6 @@ class Config(object):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = (
         f'mysql+pymysql://{myenv("MYSQL_DB_USER")}:{myenv("MYSQL_DB_PASS")}'
-        f'@{myenv("MYSQL_DB_HOST")}/{myenv("MYSQL_DB_NAME")}'
+        f'@{myenv("MYSQL_DB_HOST")}/{myenv("MYSQL_DB_NAME")}?charset=utf8mb4'
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
