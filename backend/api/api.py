@@ -54,7 +54,7 @@ class PermalinkTweet(Resource):
 #         return jsonify([to_dict(tweet) for tweet in tweets])
 
 
-api.add_resource(Tweet, '/')
+# api.add_resource(Tweet, '/')
 api.add_resource(RandomTweets, '/random')
 api.add_resource(PermalinkTweet, '/tweet/<string:permalink_slug>')
 # api.add_resource(OptimizedRandomTweets, '/optimized_random')
