@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import random
@@ -39,6 +40,7 @@ def write_tweets(
         tweets: pd.DataFrame,
         output_fn: str,
         append: bool = False,
+        indent: bool = False,
 ):
     """
     Saves tweets to a json file
@@ -47,6 +49,7 @@ def write_tweets(
         tweets: DataFrame of tweet info
         output_fn: output filename
         append: if True, appends new tweets to the existing file at `output_fn`
+        indent: if True, adds indenting formatting to json file
     """
     # Open existing file and append new tweets
     if append:
@@ -58,13 +61,17 @@ def write_tweets(
 
     # Save
     with open(output_fn, 'w', encoding='utf-8') as file:
-        tweets.to_json(file, force_ascii=False, orient='records')
+        if indent:
+            tweets.to_json(file, force_ascii=False, orient='records', indent=4)
+        else:
+            tweets.to_json(file, force_ascii=False, orient='records')
 
 
 def extract_tweet_info(
         input_fn: str,
         output_fn: str,
         append: bool = False,
+        make_copies: bool = True,
 ):
     """
     Extracts the body of the tweet from the massive dict of metadata
@@ -75,6 +82,8 @@ def extract_tweet_info(
         input_fn: input json filename containing full tweet info as dictionaries
         output_fn: output filename
         append: if True, appends new tweets to the existing file at `output_fn`
+        make_copies: if True, writes one copy of the tweets to an `all_tweets` folder and another copy to a
+            `pending_curation` folder for human curation
     """
     # Check that input file is actually there
     if not os.path.exists(input_fn):
@@ -120,13 +129,23 @@ def extract_tweet_info(
     df = pd.DataFrame(tweets)
 
     # Save tweets
-    write_tweets(df, output_fn, append)
+    if make_copies:
+        # First do all_tweets
+        all_tweets_output_fn = f'all_tweets/{output_fn.replace(".json", "_all.json")}'
+        write_tweets(df, all_tweets_output_fn, append)
+
+        # Write them again to a pending_curation folder (indent for human readability)
+        pending_curation_fn = f'pending_curation/{output_fn}'
+        write_tweets(df, pending_curation_fn, append, indent=True)
+    else:
+        write_tweets(df, output_fn, append)
 
 
 def handler(
         input_fn: str,
         output_fn: Optional[str] = None,
         append: bool = False,
+        make_copies: bool = True,
 ):
     """
     Make some runtime sanity checks and then call the text extractor.
@@ -135,6 +154,8 @@ def handler(
         input_fn: input filename - must be json.
         output_fn: optional output filename
         append: if True, appends new tweets to the existing file at `output_fn`
+        make_copies: if True, writes one copy of the tweets to an `all_tweets` folder and another copy to a
+            `pending_curation` folder for human curation
     """
     # Check that input fn in json
     if not input_fn.endswith('.json'):
@@ -145,7 +166,12 @@ def handler(
         output_fn = input_fn.replace('.json', '')
         if output_fn.endswith('tweets'):
             output_fn = output_fn[:-6] + 'texts'
-        output_fn += '.json'
+
+        # Add the date and a random slug to the filename
+        # Today formatted as MMDDYYYY
+        today = datetime.date.today().strftime('%m%d%Y')
+        rand_slug = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+        output_fn += f'_{today}_{rand_slug}.json'
 
     # Make sure that if we want to append new tweets to a file, the output file exists
     if append:
@@ -158,6 +184,7 @@ def handler(
         input_fn,
         output_fn,
         append,
+        make_copies,
     )
 
 
