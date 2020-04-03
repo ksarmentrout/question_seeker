@@ -12,5 +12,5 @@ load_dotenv()
 if __name__ == '__main__':
     streamer.stream(
         q_list_names='imperative',
-        time_limit=60,
+        # time_limit=60,
     )
