@@ -26,8 +26,8 @@ c = db.cursor()
 
 def insert_tweets(
         input_filename: str,
-        delete_file: bool = True,
-        lines_per_commit: int = 20,
+        delete_file: bool = False,
+        lines_per_commit: int = 40,
 ):
     with open(input_filename) as file:
         data = json.load(file)
@@ -62,7 +62,6 @@ def insert_tweets(
     # Iterate over tweets in data json, committing groups at a time
     value_list = []
     for counter, line in enumerate(data):
-        print(line)
         tup = (
             line['tweet_text'],
             line['tweet_id'],
