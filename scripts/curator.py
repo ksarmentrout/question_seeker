@@ -19,9 +19,12 @@ def curate(
 
     kept_tweets = []
     for tweet in data:
-        resp = input(f"{tweet['tweet_text']} [y/n]").lower()
+        resp = input(f"{tweet['tweet_text']} ([y]/n)").lower()
 
-        if resp == 'y':
+        if resp == 'n':
+            continue
+        else:
+            # By default, keep the tweet
             kept_tweets.append(resp)
 
     if overwrite:
