@@ -163,9 +163,7 @@ def handler(
 
     # Create output filename if none was passed
     if output_fn is None:
-        output_fn = input_fn.replace('.json', '')
-        if output_fn.endswith('tweets'):
-            output_fn = output_fn[:-6] + 'texts'
+        output_fn = input_fn.replace('.json', '').replace('tweets', 'texts')
 
         # Add the date and a random slug to the filename
         # Today formatted as MMDDYYYY

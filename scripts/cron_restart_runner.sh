@@ -7,10 +7,12 @@ proc_count=`ps x | grep -c "python runner"`
 if [[ ${proc_count} -ne 2 ]]
 then
     echo "Restarting runner.py:     $(date)" >> /var/log/qseek.log
-    qseek  # alias to cd into the correct directly and activate conda env
+    source activate qseek_env
+    pushd /root/question_seeker
     python scripts/text_extractor.py imperative_tweets.json
     rm imperative_tweets.json
     nohup python runner.py &>/dev/null &
+    popd
 else
 # Otherwise, do nothing
     echo "Process still running. No action.     $(date)" >> /var/log/qseek.log
