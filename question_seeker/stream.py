@@ -123,7 +123,7 @@ class Listener(StreamListener):
 def connect_stream(
         auth: OAuthHandler,
         tweet_handler_map: Dict[str, processing.TweetHandler],
-        time_limit: Optional[int],
+        time_limit: Optional[int] = None,
         batch_size: int = 20,
         write_to_file: bool = True
 ):
@@ -184,7 +184,10 @@ def stream(
     tweet_handler_map = processing.get_tweet_handler_map(q_list_names, batch_size, write_to_file)
 
     # Connect to a stream using exponential backoff in the event of a connection error
-    connect_stream(auth, tweet_handler_map, time_limit, batch_size=batch_size, write_to_file=write_to_file)
+    try:
+        connect_stream(auth, tweet_handler_map, time_limit, batch_size=batch_size, write_to_file=write_to_file)
+    finally:
+        logger.info('Stopping stream')
 
     return True
 

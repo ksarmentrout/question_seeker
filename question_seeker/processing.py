@@ -7,7 +7,7 @@ from typing import (
     Union,
 )
 
-from question_seeker.log import LOGGER as logger
+from question_seeker.log import LOGGER
 from question_seeker import q_starts, utils
 
 
@@ -46,7 +46,7 @@ class TweetHandler:
         """
         for tweet in self.bucket:
             self.file.write(tweet)
-        logger.debug(f'Wrote {len(self.bucket)} tweets to file')
+        LOGGER.info(f'Wrote {len(self.bucket)} tweets to file')
 
     def __repr__(self):
         return f'TweetHandler with filename "{self.filename}" holding {len(self.bucket)} tweets'
@@ -153,20 +153,20 @@ def process(
         tweet_text = tweet_text.replace('\n', ' ')
 
     match = R.search(tweet_text)
-    logger.debug(f'String to parse: {tweet_text}')
+    LOGGER.debug(f'String to parse: {tweet_text}')
 
     if match:
-        logger.debug(f'Match groups: {match.groups()}')
+        LOGGER.debug(f'Match groups: {match.groups()}')
     else:
-        logger.debug('No match')
+        LOGGER.debug('No match')
 
     if match:
         q_lead = match.groups()[0].rstrip()
-        logger.debug(f'Question lead: {q_lead}')
-        logger.debug(f'Tweet handler map keys: {tweet_handler_map.keys()}')
+        LOGGER.debug(f'Question lead: {q_lead}')
+        LOGGER.debug(f'Tweet handler map keys: {tweet_handler_map.keys()}')
         if q_lead.lower() in tweet_handler_map:
             tweet_handler_map[q_lead.lower()].add_tweet(json.dumps(tweet))
-            logger.debug(f'Added tweet to handler {tweet_handler_map[q_lead.lower()]}')
+            LOGGER.debug(f'Added tweet to handler {tweet_handler_map[q_lead.lower()]}')
 
 
 def process_tweets(
