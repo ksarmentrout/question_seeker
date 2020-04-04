@@ -94,3 +94,7 @@ aws_deployment/
 
 # dev
 scratch.py
+
+# Stored tweets
+all_tweets/
+pending_curation/
