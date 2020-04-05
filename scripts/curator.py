@@ -19,7 +19,7 @@ def curate(
 
     kept_tweets = []
     for tweet in data:
-        resp = input(f"{tweet['tweet_text']} ([y]/n)").lower()
+        resp = input(f"{tweet['tweet_text']} ([y]/n): ").lower()
 
         if resp == 'n':
             continue

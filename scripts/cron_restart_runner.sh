@@ -7,11 +7,20 @@ proc_count=`ps x | grep -c "python runner"`
 if [[ ${proc_count} -ne 2 ]]
 then
     echo "Restarting runner.py:     $(date)" >> /var/log/qseek.log
-    source activate qseek_env
-    pushd /root/question_seeker
-    python scripts/text_extractor.py imperative_tweets.json
+    pushd ${QSEEK_ROOT}
+    source .env
+    echo "pwd: $(pwd)" >> /var/log/qseek.log
+    ${PYTHON_EXE} scripts/text_extractor.py imperative_tweets.json
+    echo "Ran text extractor" >> /var/log/qseek.log
     rm imperative_tweets.json
-    nohup python runner.py &>/dev/null &
+    nohup ${PYTHON_EXE} runner.py &>/dev/null &
+        # Check again for a successful start
+        if [[ ${proc_count} -ne 2 ]]
+        then
+            echo "Restarted runner.py successfully." >> /var/log/qseek.log
+        else
+            echo "Could not restart runner.py." >> /var/log/qseek.log
+        fi
     popd
 else
 # Otherwise, do nothing
