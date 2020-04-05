@@ -36,6 +36,55 @@ def clean_tweet(tweet: str) -> str:
     return tweet
 
 
+def filter_for_curation(df: pd.DataFrame):
+    """
+    Filters tweets with commonly used phrases out from the body of tweets
+    that will be curated.
+
+    This should only be called when making two copies of the collected tweets.
+    It is meant to be a time-saver for the curation process, not to remove
+    tweets from the overall collected corpus.
+
+    Right now this is done with exact matches, but could be updated later to
+    use fuzzy string matching and scoring to account for tweets that contain
+    similar and adjacent phrases.
+
+    Args:
+        df: dataframe holding tweets
+
+    Returns:
+        DataFrame with commonly seen tweets filtered out
+    """
+    def filter_tweet(tweet: str) -> bool:
+        """
+        Filtering function to run on individual tweets.
+        Returns True if the tweet should be be kept, False otherwise.
+
+        Args:
+            tweet: body of the tweet to filter
+
+        Returns:
+            True if the tweet PASSES and does NOT contain any of the
+            phrases below
+        """
+        phrase_list = [
+            'what should i stream',
+            'what should i stream next',
+            'what should i watch',
+            'what should i watch next',
+            'what should i do today',
+            'what should i cook next',
+            'what should i cook today',
+        ]
+        lower_tweet = tweet.lower()
+        return not any([x in lower_tweet for x in phrase_list])
+
+    df['keep'] = df.tweet_text.apply(filter_tweet)
+    df = df[df.keep]
+    df = df.drop('keep', axis=1)
+    return df
+
+
 def write_tweets(
         tweets: pd.DataFrame,
         output_fn: str,
@@ -136,7 +185,8 @@ def extract_tweet_info(
 
         # Write them again to a pending_curation folder (indent for human readability)
         pending_curation_fn = f'pending_curation/{output_fn}'
-        write_tweets(df, pending_curation_fn, append, indent=True)
+        curation_df = filter_for_curation(df)
+        write_tweets(curation_df, pending_curation_fn, append, indent=True)
     else:
         write_tweets(df, output_fn, append)
 
