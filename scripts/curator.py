@@ -34,17 +34,17 @@ def curate(
     total_tweets = len(data)
     save_and_quit = False
     for counter, tweet in enumerate(data):
-        resp = input(f"{tweet['tweet_text']} ([y]/n/s) ({counter}/{total_tweets}: ").lower()
+        resp = input(f"{tweet['tweet_text']} ([n]/y/s) ({counter}/{total_tweets}): ").lower()
 
-        if resp == 'n':
-            # Skip the tweet
-            continue
+        if resp == 'y':
+            # Keep the tweet
+            kept_tweets.append(tweet)
         elif resp == 's':
             save_and_quit = True
             break
         else:
-            # By default, keep the tweet
-            kept_tweets.append(tweet)
+            # By default, skip the tweet
+            continue
 
     if save_and_quit:
         # Find the next unique progress marker filename
