@@ -39,7 +39,7 @@ def curate(
     total_tweets = len(data)
     save_and_quit = False
     for counter, tweet in enumerate(data):
-        resp = input(f"{tweet['tweet_text']} ([n]/y/s) ({counter}/{total_tweets}): ").lower()
+        resp = input(f"{tweet['tweet_text']} ([n]/y/s/u) ({counter}/{total_tweets}): ").lower()
 
         if resp == 'y':
             # Keep the tweet
@@ -47,6 +47,21 @@ def curate(
         elif resp == 's':
             save_and_quit = True
             break
+        elif resp == 'u':
+            # This is an undo button. It can only be used to go back a single line for now.
+            print('Returning to previous tweet...')
+            prev_tweet = data[counter - 1]
+
+            # Only give n/y options
+            new_resp = input(f"{prev_tweet['tweet_text']} ([n]/y) ({counter-1}/{total_tweets}): ").lower()
+
+            if new_resp == resp:
+                # If I want to do the same thing as before, just keep going
+                continue
+            elif new_resp == 'y':
+                kept_tweets.append(prev_tweet)
+            else:
+                kept_tweets = kept_tweets[:-1]
         else:
             # By default, skip the tweet
             continue
