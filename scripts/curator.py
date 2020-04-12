@@ -1,8 +1,14 @@
 import json
 import os
-from typing import Dict, List, Optional
+from typing import (
+    Dict,
+    List,
+    Optional,
+)
 
 import fire
+
+from question_seeker import utils
 
 
 def curate(
@@ -27,8 +33,7 @@ def curate(
         else:
             write_filename = filename
 
-        with open(write_filename, 'w') as outfile:
-            json.dump(tweets, outfile)
+        utils.encoded_write(tweets, write_filename, indent=True)
 
     kept_tweets = []
     total_tweets = len(data)

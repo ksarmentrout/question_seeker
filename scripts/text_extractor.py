@@ -10,6 +10,8 @@ from typing import (
 import fire
 import pandas as pd
 
+from question_seeker import utils
+
 
 def clean_tweet(tweet: str) -> str:
     """
@@ -67,17 +69,31 @@ def filter_for_curation(df: pd.DataFrame):
             True if the tweet PASSES and does NOT contain any of the
             phrases below
         """
+        keep_tweet = True
+
         phrase_list = [
-            'what should i stream',
-            'what should i stream next',
             'what should i watch',
             'what should i watch next',
             'what should i do today',
             'what should i cook next',
             'what should i cook today',
+            'what should i draw next',
+            'netflix',
+            'stream',
+            'what should i eat? : ',
+            'breakfast',
+            'wear to the living room',
+            '200 followers',
+            '100 followers',
         ]
         lower_tweet = tweet.lower()
-        return not any([x in lower_tweet for x in phrase_list])
+        if any([x in lower_tweet for x in phrase_list]):
+            keep_tweet = False
+
+        if lower_tweet == 'what should i do?':
+            keep_tweet = False
+
+        return keep_tweet
 
     df['keep'] = df.tweet_text.apply(filter_tweet)
     df = df[df.keep]
@@ -109,11 +125,7 @@ def write_tweets(
     tweets = tweets[~tweets.duplicated('tweet_id')]
 
     # Save
-    with open(output_fn, 'w', encoding='utf-8') as file:
-        if indent:
-            tweets.to_json(file, force_ascii=False, orient='records', indent=4)
-        else:
-            tweets.to_json(file, force_ascii=False, orient='records')
+    utils.encoded_write(tweets, output_fn, indent)
 
 
 def extract_tweet_info(

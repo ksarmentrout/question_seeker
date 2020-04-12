@@ -1,7 +1,14 @@
 import os
+from typing import (
+    Dict,
+    List,
+    TextIO,
+    Union,
+)
+
+import pandas as pd
 import requests
 import tweepy
-from typing import TextIO
 
 from question_seeker.log import LOGGER as logger
 
@@ -67,3 +74,26 @@ class FileWrapper:
 
     def write(self, line: str):
         self.file.write(line + '\n')
+
+
+def encoded_write(
+        tweets: Union[pd.DataFrame, List[Dict]],
+        output_filename: str,
+        indent: bool = True,
+):
+    """
+    Writes tweets to a file while maintaining the correct encoding to handle
+    emojis and other special characters.
+
+    Args:
+        tweets: either a dataframe or a list of dictionaries holding tweet info
+        output_filename: filename to write output to
+        indent: if True, writes with 4 character indent formatting
+    """
+    df = pd.DataFrame(tweets) if isinstance(tweets, list) else tweets
+
+    with open(output_filename, 'w', encoding='utf-8') as file:
+        if indent:
+            df.to_json(file, force_ascii=False, orient='records', indent=4)
+        else:
+            df.to_json(file, force_ascii=False, orient='records')
