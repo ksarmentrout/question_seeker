@@ -41,7 +41,9 @@ def encode_dir(
         raise NotADirectoryError(f'Path {dirname} is not a directory.')
 
     dir_contents = os.listdir(dirname)
-    filenames = [x for x in dir_contents if x.endswith('.json')]
+    filenames = [
+        os.path.join(dirname, x) for x in dir_contents if x.endswith('.json')
+    ]
 
     for filename in filenames:
         encode_json_file(filename, indent)
