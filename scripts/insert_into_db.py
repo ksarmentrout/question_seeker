@@ -9,6 +9,7 @@ from typing import (
 import dotenv
 import fire
 import MySQLdb
+import pandas as pd
 
 
 dotenv.load_dotenv()
@@ -29,8 +30,7 @@ def insert_tweets(
         delete_file: bool = False,
         lines_per_commit: int = 40,
 ):
-    with open(input_filename) as file:
-        data = json.load(file)
+    df = pd.read_json(input_filename)
 
     def do_execute(lines: List[Tuple[Any, ...]]):
         """
@@ -61,7 +61,7 @@ def insert_tweets(
 
     # Iterate over tweets in data json, committing groups at a time
     value_list = []
-    for counter, line in enumerate(data):
+    for counter, line in enumerate(df.to_dict(orient='records')):
         tup = (
             line['tweet_text'],
             line['tweet_id'],
