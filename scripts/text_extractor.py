@@ -195,12 +195,12 @@ def extract_tweet_info(
     # Save tweets
     if make_copies:
         # First do all_tweets
-        Path(base_outdir / 'all_tweets').mkdir(parents=True)
+        Path(base_outdir / 'all_tweets').mkdir(parents=True, exist_ok=True)
         all_tweets_output_fn = str(base_outdir / f'all_tweets/{outname.replace(".json", "_all.json")}')
         write_tweets(df, all_tweets_output_fn, append)
 
         # Write them again to a pending_curation folder (indent for human readability)
-        Path(base_outdir / 'pending_curation').mkdir(parents=True)
+        Path(base_outdir / 'pending_curation').mkdir(parents=True, exist_ok=True)
         pending_curation_fn = str(base_outdir / 'pending_curation' / outname)
         curation_df = filter_for_curation(df)
         write_tweets(curation_df, pending_curation_fn, append, indent=True)
