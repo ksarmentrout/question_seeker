@@ -98,3 +98,9 @@ scratch.py
 # Stored tweets
 all_tweets/
 pending_curation/
+
+# deploy scripts
+scripts/cron_restart_runner.sh
+go.sh
+kill.sh
+

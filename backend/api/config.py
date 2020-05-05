@@ -16,3 +16,5 @@ class Config(object):
         f'@{myenv("MYSQL_DB_HOST")}/{myenv("MYSQL_DB_NAME")}?charset=utf8mb4'
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MYSQL_DATABASE_CHARSET = 'utf8mb4'
+
