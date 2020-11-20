@@ -2,6 +2,7 @@ import random
 import string
 
 import fire
+import numpy as np
 import pandas as pd
 
 from question_seeker import utils
@@ -28,6 +29,7 @@ def take_bite(
     for idx in rand_indices:
         mask[idx] = True
     
+    mask = np.asarray(mask)
     sample = df[mask].copy()
     assert len(sample) == bite_size
 
