@@ -39,7 +39,7 @@ def take_bite(
 
     slug = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
     output_text_fn = input_fn.replace('.json', f'_texts_{slug}.json')
-    output_strings_fn = input_fn.replace('.json', f'_strings_{slug}.json')
+    output_strings_fn = input_fn.replace('.json', f'_strings_{slug}.csv')
 
     strings = sample.tweet_text.values.tolist()
 
