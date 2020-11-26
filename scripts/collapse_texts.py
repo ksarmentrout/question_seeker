@@ -7,7 +7,7 @@ from question_seeker import utils
 def collapse_texts(
     texts_df_filename: str,
     strings_filename: str,
-):
+) -> str:
     '''
     This method expects two input filenames: one for a file with tweet texts and metadata, another for 
     a file of only strings of tweet bodies. 
@@ -20,7 +20,10 @@ def collapse_texts(
         data = [x.strip() for x in file.readlines()]
     
     df = df[df.tweet_text.isin(data)]
-    utils.encoded_write(df, texts_df_filename.replace('.json', '_collapsed.json'))
+    collapsed_filename = texts_df_filename.replace('.json', '_collapsed.json')
+    utils.encoded_write(df, collapsed_filename)
+
+    return collapsed_filename
 
 
 if __name__ == '__main__':

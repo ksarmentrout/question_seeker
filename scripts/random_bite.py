@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 import random
 import string
 
@@ -10,6 +12,7 @@ from question_seeker import utils
 
 def take_bite(
     input_fn: str,
+    output_dir: str,
     bite_size: int = 50,
 ):
     '''
@@ -18,7 +21,6 @@ def take_bite(
 
     The input function must be json. The outputs are one file with all tweet data available (suffixed
     with 'texts'), and another (suffixed with 'strings') with only the tweet bodies for easy curation. 
-
 
     '''
     df = pd.read_json(input_fn)
@@ -38,8 +40,14 @@ def take_bite(
     utils.encoded_write(df, input_fn)
 
     slug = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
-    output_text_fn = input_fn.replace('.json', f'_texts_{slug}.json')
-    output_strings_fn = input_fn.replace('.json', f'_strings_{slug}.csv')
+
+    filename = Path(input_fn).resolve().parts[-1]
+    output_text_filename = f'texts_{filename.replace(".json", "")}_{slug}.json'
+    output_strings_filename = f'strings_{filename.replace(".json", "")}_{slug}.csv'
+
+    # Make sure we're putting the output files in the output dir
+    output_text_fn = str(Path(output_dir).resolve() / output_text_filename)
+    output_strings_fn = str(Path(output_dir).resolve() / output_strings_filename)
 
     strings = sample.tweet_text.values.tolist()
 
