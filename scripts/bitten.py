@@ -75,7 +75,7 @@ def resolve_bitten_files(
         shutil.move(files['collapsed_file'], entered_tweets_dir)
 
         # Delete the strings file
-        shutil.rmtree(files['strings_file'])
+        os.remove(files['strings_file'])
 
 
 if __name__ == '__main__':
